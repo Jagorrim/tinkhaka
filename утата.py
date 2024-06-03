@@ -1,2 +1,2 @@
-a = ' 56465464'
+a = 'hjgjhgjgh'
 print(a)
