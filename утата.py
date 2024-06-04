@@ -1,2 +1,0 @@
-a = 'hjgjhgjgh'
-print(a)
