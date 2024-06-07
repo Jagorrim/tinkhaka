@@ -13,7 +13,7 @@ _high_priority_operators = ('*', '/')
 
 
 # Нужно для получения наибольшего делителя. В случае простоты числа просто вернём само число, лол
-def get_highest_divider(num):
+def get_highest_divider(num: float | int) -> float | int:
     if num == 0:
         return 1  # Чтобы для нуля не было деления на нуль, нужно возвращать 1.
 
@@ -30,7 +30,7 @@ def get_highest_divider(num):
 # 2. Методы представления чтобы было удобно дебажить
 class MathExpression:
     def __init__(self):
-        self.expression: str = ''  # список строк, которые мы будем джойнить
+        self.expression: str = ''  # само выражение
         self.answer: int | float = 0
 
     def __str__(self) -> str:
@@ -40,7 +40,8 @@ class MathExpression:
         return self.__str__()
 
 
-class NumericExpression(MathExpression):
+# Класс для обычных арифметических примеров
+class ArithmeticExpression(MathExpression):
     def __init__(self, nums_count, complexity=1, _sum=True, _sub=True, _mult=True, _div=True, _brackets=0):
         if not _sum and not _sub and not _mult and not _div:
             raise ValueError('Отсутствуют операторы!')
@@ -100,7 +101,7 @@ class NumericExpression(MathExpression):
                             diff = '+' + str(diff)
                         elif diff < 0:
                             diff = str(diff)
-                        else:
+                        else:  # Тут мы рассматриваем случай, когда разница нулевая => ничего и добавлять не надо
                             diff = ''
                         brackets = '(' + brackets + diff + ')'
                         raw_expression.append(brackets)
@@ -110,6 +111,7 @@ class NumericExpression(MathExpression):
                         nums_count -= 1
 
                 # Здесь мы рассматриваем случаи, когда можно заменить предыдущее число для удобоваримого деления
+                # (и для меньших затрат по производительности)
                 else:
                     # Также можно попытаться заменить делимое на скобку
                     if _brackets and random.randrange(1, 6) == 1 and nums_count > 2:
@@ -120,12 +122,13 @@ class NumericExpression(MathExpression):
                         brackets = self.generate(len_brackets, complexity=complexity, _sum=_sum, _sub=_sub,
                                                  _mult=_mult, _div=_div, _brackets=_brackets - 1)
 
+                        # Разница между скобкой и делимым, которую надо компенсировать
                         diff = divisible - eval(brackets)
                         if diff > 0:
                             diff = '+' + str(diff)
                         elif diff < 0:
                             diff = str(diff)
-                        else:
+                        else:  # Тут мы рассматриваем случай, когда разница нулевая => ничего и добавлять не надо
                             diff = ''
                         brackets = '(' + brackets + diff + ')'
                         raw_expression[-2] = brackets
@@ -162,14 +165,14 @@ class NumericExpression(MathExpression):
         return ''.join(raw_expression)
 
 
-# Тесты
+# Тесты (запустятся только в случае запуска именно этого конкретного файла)
 if __name__ == '__main__':
     from time import time
 
     start = time()
     ans = True
     for _ in range(100_000):
-        exp = NumericExpression(nums_count=10, _brackets=2)
+        exp = ArithmeticExpression(nums_count=10, _brackets=2)
         # print(eval(exp.expression) == exp.answer)
         if exp.answer % 1 != 0:
             ans = False
@@ -177,4 +180,4 @@ if __name__ == '__main__':
     print(ans)
     print(time() - start)
     for _ in range(1000):
-        print(NumericExpression(nums_count=5, _brackets=0).answer % 1 == 0)
+        print(ArithmeticExpression(nums_count=5, _brackets=0).answer % 1 == 0)
