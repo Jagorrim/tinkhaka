@@ -5,29 +5,12 @@
         margin-bottom: 30px;
     }
 </style>
-{% for exp in tasks_exp %}
-<div>
-    <p>{{ exp }}</p>
-    <input placeholder="Ваш ответ">
+<div id="main">
 </div>
 <br>
-{% endfor %}
-<script>
-    let button = document.querySelector('#button');
-    let answers = {{ tasks_ans }};
-    button.addEventListener("click", function() {
-    let inputs = document.querySelectorAll("#test input);
-    let point = 0;
-    let i = 0;
-    for (let input of inputs) {
-    }
-        if (input.value == answers[i]) {
-        point++;
-        alert(point);}
-        i++;
-    }};
-    ;
-</script>
 
-<button>Проверить</button>
+<button id="check">Проверить</button>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 {% endblock %}
