@@ -18,10 +18,15 @@ def get_highest_divider(num: float | int) -> float | int:
         return 1  # Чтобы для нуля не было деления на нуль, нужно возвращать 1.
 
     num = abs(num)
-    for i in range(ceil(num ** 0.5), 0, -1):
+    for i in range(2, ceil(num ** 0.5) + 1):
         if num % i == 0:
             return num / i
+
     return num
+
+
+def get_new_num(complexity: int | float, min_num: int, max_num: int) -> float | int:
+    return random.randrange(min_num, max_num) * complexity
 
 
 # Базовый шаблон для всех выражений, которые вообще будут
@@ -31,7 +36,7 @@ def get_highest_divider(num: float | int) -> float | int:
 class MathExpression:
     def __init__(self):
         self.expression: str = ''  # само выражение
-        self.answer: int | float = 0
+        self.answer: float | int = 0
 
     def __str__(self) -> str:
         return f'{self.__class__}:exp=<{self.expression}>,ans=<{self.answer}>'
@@ -42,13 +47,23 @@ class MathExpression:
 
 # Класс для обычных арифметических примеров
 class ArithmeticExpression(MathExpression):
-    def __init__(self, nums_count, complexity=1, _sum=True, _sub=True, _mult=True, _div=True, _brackets=0):
+    def __init__(self, nums_count: int, complexity: int = 1,
+                 _sum: bool = False, _sub: bool = False, _mult: bool = False, _div: bool = False,
+                 _brackets: int = 0):
+
         if not _sum and not _sub and not _mult and not _div:
             raise ValueError('Отсутствуют операторы!')
+
+        if complexity > 3:  # Иначе пойдут слишком большие числа и float такое не потянет
+            raise ValueError('Неподдерживаемая сложность!')
+
         super().__init__()
 
+        if complexity != 1:
+            complexity = random.randrange(10 ** (complexity - 1), 10 ** complexity + 1)
+
         self.expression: str = self.generate(nums_count, complexity, _sum, _sub, _mult, _div, _brackets)
-        self.answer: int | float = eval(self.expression)
+        self.answer: float | int = eval(self.expression)
 
     # Получаем последнее выражение высшего порядка, то есть скобки, умножаемые/делимые на что-либо. Это нужно для того,
     # чтобы правильно расчитать делитель для это части
@@ -59,20 +74,35 @@ class ArithmeticExpression(MathExpression):
                 return expression[index + 1:-1]
         return expression[:-1]
 
+    # Формируем словарь количества операторов, исходя из возможности их добавления и количества чисел
+    @staticmethod
+    def get_available_operators(nums_count: int, _sum: bool, _sub: bool, _mult: bool, _div: bool) -> dict[str, int]:
+        operators_places = nums_count - 1
+        operators: dict[str, int] = {}
+
+        if _sum: operators['+'] = 0
+        if _sub: operators['-'] = 0
+        if _mult: operators['*'] = 0
+        if _div: operators['/'] = 0
+
+        operator_usages = ceil(operators_places / len(operators))
+        for i in operators: operators[i] = operator_usages
+        return operators
+
     # _brackets - уровень вложенности скобок (если 0 - то скобок нет совсем).
     # complexity - размер множителя для всех чисел, который должен усложнять пример
-    def generate(self, nums_count, complexity=1, _sum=True, _sub=True, _mult=True, _div=True, _brackets=1) -> str:
-        operators: list[str] = []
-        if _sum: operators.append('+')
-        if _sub: operators.append('-')
-        if _mult: operators.append('*')
-        if _div: operators.append('/')
-        base_complexity = 11
+    def generate(self, nums_count: int, complexity: int,
+                 _sum: bool, _sub: bool, _mult: bool, _div: bool,
+                 _brackets: int) -> str:
+
+        operators = self.get_available_operators(nums_count, _sum, _sub, _mult, _div)
+
+        min_num = 1
+        max_num = 11
 
         raw_expression = []
         while nums_count > 0:
-            num = random.randrange(1, base_complexity)
-            operator = random.choice(operators)
+            num = get_new_num(complexity, min_num, max_num)
 
             # Если текущее число является делителем,
             # то нужно всё это обработать чтобы было круто и не было тяжело делимого говна
@@ -116,7 +146,7 @@ class ArithmeticExpression(MathExpression):
                     # Также можно попытаться заменить делимое на скобку
                     if _brackets and random.randrange(1, 6) == 1 and nums_count > 2:
                         # Суммарное значение скобки, которую мы воткнём
-                        divisible = random.randrange(1, base_complexity) * num
+                        divisible = get_new_num(complexity, min_num, max_num) * num
 
                         len_brackets = random.randrange(2, nums_count)
                         brackets = self.generate(len_brackets, complexity=complexity, _sum=_sum, _sub=_sub,
@@ -137,12 +167,12 @@ class ArithmeticExpression(MathExpression):
 
                     # или просто на число
                     else:
-                        new_num = random.randrange(1, base_complexity)
+                        new_num = get_new_num(complexity, min_num, max_num)
                         raw_expression[-2] = str(new_num * num)  # Заменяем старое число на нормально делимое
                         raw_expression.append(str(num))
                         nums_count -= 1
 
-            # Если делить ничего не надо, то можно просто воткнуть скобку/число и оператор (и будет круто)
+            # Если делить ничего не надо, то можно просто воткнуть скобку/число (и будет круто)
             else:
                 # Если из чисел от 1 до 5 выпало 1, то можно воткнуть скобки (шанс - 20%),
                 # и при этом скобки можно поставить
@@ -160,6 +190,10 @@ class ArithmeticExpression(MathExpression):
 
             # После всех манипуляций можно поставить оператор для следующего числа (если следующее число вообще будет)
             if nums_count > 0:
+                operator = random.choice(list(operators.keys()))
+                operators[operator] -= 1
+                if operators[operator] == 0:
+                    del operators[operator]
                 raw_expression.append(operator)
 
         return ''.join(raw_expression)
@@ -170,14 +204,8 @@ if __name__ == '__main__':
     from time import time
 
     start = time()
-    ans = True
     for _ in range(100_000):
-        exp = ArithmeticExpression(nums_count=10, _brackets=2)
-        # print(eval(exp.expression) == exp.answer)
-        if exp.answer % 1 != 0:
-            ans = False
-            break
-    print(ans)
-    print(time() - start)
-    for _ in range(1000):
-        print(ArithmeticExpression(nums_count=5, _brackets=0).answer % 1 == 0)
+        exp = ArithmeticExpression(nums_count=10, _brackets=2, _sub=True, _sum=True, _mult=True, _div=True,
+                                   complexity=1)
+
+    print('time -', time() - start)
