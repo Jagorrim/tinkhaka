@@ -58,12 +58,17 @@ class ArithmeticExpression(MathExpression):
             raise ValueError('Неподдерживаемая сложность!')
 
         super().__init__()
-
         if complexity != 1:
             complexity = random.randrange(10 ** (complexity - 1), 10 ** complexity + 1)
 
-        self.expression: str = self.generate(nums_count, complexity, _sum, _sub, _mult, _div, _brackets)
-        self.answer: float | int = eval(self.expression)
+        while True:
+            try:
+                self.expression: str = self.generate(nums_count, complexity, _sum, _sub, _mult, _div, _brackets)
+                self.answer: float | int = eval(self.expression)
+                break
+            # Тут мы игнорируем моменты, когда при сложности 3 и только умножении и делении тип float может сойти с ума
+            except Exception:
+                pass
 
     # Получаем последнее выражение высшего порядка, то есть скобки, умножаемые/делимые на что-либо. Это нужно для того,
     # чтобы правильно расчитать делитель для это части
@@ -205,7 +210,8 @@ if __name__ == '__main__':
 
     start = time()
     for _ in range(100_000):
-        exp = ArithmeticExpression(nums_count=10, _brackets=2, _sub=True, _sum=True, _mult=True, _div=True,
-                                   complexity=1)
+        exp = ArithmeticExpression(nums_count=10, _brackets=2, _mult=True, _div=True, _sub=True, _sum=True,
+                                   complexity=3)
+        # print(exp)
 
     print('time -', time() - start)
