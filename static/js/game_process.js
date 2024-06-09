@@ -17,9 +17,6 @@ function update() {
                     main_part.html() + `<p id=${i}>${result[0][i]}</p><input type=text id=${i} placeholder="Ваш ответ">`
                 )
             }
-            main_part.html(
-                main_part.html() + `<br> <button id=check>Проверить</button>`
-                )
             data = result;
 
         },
@@ -61,8 +58,9 @@ $('#check').on("click", function () {
         console.log(data[1][i])
         if (input.value == data[1][i]) {
             point++;
-            update_after_check();
         }
         i++;
     }
+    $("#check").css("display", "none");
+    update_after_check();
 })
