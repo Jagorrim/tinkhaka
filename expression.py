@@ -11,6 +11,9 @@ _reverse_operators = {
 _low_priority_operators = ('+', '-')
 _high_priority_operators = ('*', '/')
 
+min_num = 1
+max_num = 11
+
 
 # Нужно для получения наибольшего делителя. В случае простоты числа просто вернём само число, лол
 def get_highest_divider(num: float | int) -> float | int:
@@ -25,8 +28,17 @@ def get_highest_divider(num: float | int) -> float | int:
     return num
 
 
-def get_new_num(complexity: int | float, min_num: int, max_num: int) -> float | int:
+def get_new_num(complexity: int | float, min_num: int, max_num: int, maybe_negative=False) -> float | int:
+    if maybe_negative:
+        complexity *= random.choice([1, -1])
+
     return random.randrange(min_num, max_num) * complexity
+
+
+def process_complexity(complexity: int) -> int:
+    if complexity != 1:
+        complexity = random.randrange(10 ** (complexity - 1), 10 ** complexity + 1)
+    return complexity
 
 
 # Базовый шаблон для всех выражений, которые вообще будут
@@ -34,9 +46,12 @@ def get_new_num(complexity: int | float, min_num: int, max_num: int) -> float | 
 # 1. параметры expression и answer, представляющие собой итоговые выражение и ответ
 # 2. Методы представления чтобы было удобно дебажить
 class MathExpression:
-    def __init__(self):
+    def __init__(self, complexity: int = 1):
         self.expression: str = ''  # само выражение
         self.answer: float | int = 0
+
+        if complexity > 3:  # Иначе пойдут слишком большие числа и float такое не потянет
+            raise ValueError('Неподдерживаемая сложность!')
 
     def __str__(self) -> str:
         return f'{self.__class__}:exp=<{self.expression}>,ans=<{self.answer}>'
@@ -54,12 +69,9 @@ class ArithmeticExpression(MathExpression):
         if not _sum and not _sub and not _mult and not _div:
             raise ValueError('Отсутствуют операторы!')
 
-        if complexity > 3:  # Иначе пойдут слишком большие числа и float такое не потянет
-            raise ValueError('Неподдерживаемая сложность!')
+        super().__init__(complexity=complexity)
 
-        super().__init__()
-        if complexity != 1:
-            complexity = random.randrange(10 ** (complexity - 1), 10 ** complexity + 1)
+        complexity = process_complexity(complexity)
 
         while True:
             try:
@@ -101,9 +113,6 @@ class ArithmeticExpression(MathExpression):
                  _brackets: int) -> str:
 
         operators = self.get_available_operators(nums_count, _sum, _sub, _mult, _div)
-
-        min_num = 1
-        max_num = 11
 
         raw_expression = []
         while nums_count > 0:
@@ -204,6 +213,101 @@ class ArithmeticExpression(MathExpression):
         return ''.join(raw_expression)
 
 
+class Equation(MathExpression):
+    def __init__(self, complexity: int = 1):
+        super().__init__(complexity=complexity)
+
+        # x + y = z
+        def _1(complexity: int) -> tuple[str, float | int]:
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            answer = num2 - num1
+
+            if num1 > 0:
+                num1 = '+' + str(num1)
+
+            exp = f'x{num1}={num2}'
+            return exp, answer
+
+        # x * y = z
+        def _2(complexity: int) -> tuple[str, float | int]:
+            answer = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = answer * num1
+
+            exp = f'{num1}*x={num2}'
+            return exp, answer
+
+        # x * y = z1 + z2
+        def _3(complexity: int) -> tuple[str, float | int]:
+            answer = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = answer * num1
+            num21 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num22 = num2 - num21
+
+            if num22 > 0:
+                num22 = '+' + str(num22)
+
+            exp = f'{num1}*x={num21}{num22}'
+            return exp, answer
+
+        # x * y + z1 = z2
+        def _4(complexity: int) -> tuple[str, float | int]:
+            answer = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = answer * num1
+            num21 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num22 = -(num2 - num21)
+
+            if num22 > 0:
+                num22 = '+' + str(num22)
+
+            exp = f'{num1}*x{num22}={num21}'
+            return exp, answer
+
+        # x / y = z
+        def _5(complexity: int) -> tuple[str, float | int]:
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            answer = num1 * num2
+
+            exp = f'x/{num1}={num2}'
+            return exp, answer
+
+        # x / y = z1 + z2
+        def _6(complexity: int) -> tuple[str, float | int]:
+            num1 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            num2 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            answer = num1 * num2
+            num21 = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+            if num21 == num2:
+                common_num = get_new_num(complexity, min_num, max_num, maybe_negative=True)
+                num21 += common_num
+                num22 = common_num
+            else:
+                num22 = num2 - num21
+
+            if num22 > 0:
+                num22 = '+' + str(num22)
+
+            exp = f'x/{num1}={num21}{num22}'
+
+            return exp, answer
+
+        patterns = [
+            _1,
+            _2,
+            _3,
+            _4,
+            _5,
+            _6
+        ]
+
+        complexity = process_complexity(complexity)
+        self.expression, self.answer = random.choice(patterns)(complexity)
+
+
 # Тесты (запустятся только в случае запуска именно этого конкретного файла)
 if __name__ == '__main__':
     from time import time
@@ -211,7 +315,13 @@ if __name__ == '__main__':
     start = time()
     for _ in range(100_000):
         exp = ArithmeticExpression(nums_count=10, _brackets=2, _mult=True, _div=True, _sub=True, _sum=True,
-                                   complexity=3)
+                                   complexity=1)
+        # print(exp)
+    print('time -', time() - start)
+
+    start = time()
+    for _ in range(100_000):
+        exp = Equation(complexity=1)
         # print(exp)
 
     print('time -', time() - start)
