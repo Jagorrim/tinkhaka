@@ -1,5 +1,5 @@
 import flask_login
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 from expression import ArithmeticExpression, Equation
@@ -35,14 +35,25 @@ def loader_user(user_id):
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        user = Users(username=request.form.get("username"),
-                     password=request.form.get("password"),
-                     rating=0,
-                     solved=0)
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if not password:
+            flash("Надо норм пароль", "danger")
+            return redirect(url_for("register"))
+
+        if Users.query.filter_by(username=username).first():
+            flash("Ник существует", "danger")
+            return redirect(url_for("register"))
+
+        user = Users(username=username, password=password, rating=0, solved=0)
         db.session.add(user)
         db.session.commit()
+        flash("Все ок", "success")
         return redirect(url_for("login"))
+
     return render_template("sign_up.html")
+
 
 
 @app.route("/login", methods=["GET", "POST"])

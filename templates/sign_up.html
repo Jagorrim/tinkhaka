@@ -1,19 +1,41 @@
-{% extends "base.html" %}
-{% block content%}
-<title>Регистрация</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Sign Up</title>
+	<style>
+	h1 {
+		color: green;
+	}
+	</style>
+</head>
+<body>
+	<nav>
+	<ul>
+		<li><a href="/login">Login</a></li>
+		<li><a href="/register">Create account</a></li>
+	</ul>
+	</nav>
+	<h1>Create an account</h1>
 
-<nav>
-    <ul>
-        <li><a href="/login">Войти</a></li>
-        <li><a href="/register">Регистрация</a></li>
-    </ul>
-</nav>
-<h1>Создать аккаунт</h1>
-<form action="#" method="post">
-    <label for="username">Имя:</label>
-    <input type="text" name="username"/>
-    <label for="password">Пароль:</label>
-    <input type="password" name="password"/>
-    <button type="submit">Создать</button>
-</form>
-{% endblock %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<ul>
+				{% for category, message in messages %}
+					<li class="{{ category }}">{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
+	<form action="{{ url_for('register') }}" method="post">
+		<label for="username">Username:</label>
+		<input type="text" name="username" required />
+		<label for="password">Password:</label>
+		<input type="password" name="password" required />
+		<button type="submit">Submit</button>
+	</form>
+</body>
+</html>
