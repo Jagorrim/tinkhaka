@@ -39,31 +39,33 @@ def register():
         password = request.form.get("password")
 
         if not password:
-            flash("Надо норм пароль", "danger")
+            flash("Требуется пароль!", "danger")
             return redirect(url_for("register"))
 
         if Users.query.filter_by(username=username).first():
-            flash("Ник существует", "danger")
+            flash("Данное имя занято!", "danger")
             return redirect(url_for("register"))
 
         user = Users(username=username, password=password, rating=0, solved=0)
         db.session.add(user)
         db.session.commit()
-        flash("Все ок", "success")
+        flash("👍", "success")
         return redirect(url_for("login"))
 
     return render_template("sign_up.html")
 
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = Users.query.filter_by(
-            username=request.form.get("username")).first()
-        if user.password == request.form.get("password"):
-            login_user(user)
-            return redirect(url_for("home"))
+        try:
+            user = Users.query.filter_by(
+                username=request.form.get("username")).first()
+            if user.password == request.form.get("password"):
+                login_user(user)
+                return redirect(url_for("home"))
+        except AttributeError:
+            pass
     return render_template("login.html")
 
 
