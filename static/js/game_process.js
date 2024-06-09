@@ -38,11 +38,7 @@ function update_after_check() {
         success: function (result) {
             count = result[0].length;
             let main_part = $('#main');
-            main_part.html('');
-            main_part.html(
-                main_part.html() + `<p>${point}</p>`
-            )
-
+            main_part.html(`<p>${point}</p>`);
             data = result;
 
         },
