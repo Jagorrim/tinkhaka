@@ -15,6 +15,8 @@ class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    solved = db.Column(db.Integer, nullable=False)
 
 
 db.init_app(app)
