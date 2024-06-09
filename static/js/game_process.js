@@ -4,7 +4,7 @@ var point = 0;
 
 function update() {
     $.ajax({
-        url: "/",
+        url: "/game_process",
         type: "POST",
         contentType: 'application/json',
         data: JSON.stringify({}),
@@ -31,7 +31,7 @@ update();
 
 function update_after_check() {
     $.ajax({
-        url: "/",
+        url: "/game_process",
         type: "POST",
         contentType: 'application/json',
         data: JSON.stringify({}),
