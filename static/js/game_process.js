@@ -46,6 +46,7 @@ function update_after_check() {
     })
 }
 
+
 $('#check').prop('disabled', true)
 
 $(document).on('input', 'input[type="text"]', function() {
