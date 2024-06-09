@@ -1,19 +1,6 @@
 {% extends "base.html" %}
 {% block content%}
-<style>
-    div {
-        margin-bottom: 30px;
-    }
-</style>
-{% for exp in tasks_exp %}
-<div>
-    <p>{{ exp }}</p>
-    <input placeholder="Ваш ответ">
-</div>
-<br>
-{% endfor %}
-  <script src="{{ url_for('static', filename='js/game_process.js') }}"></script>
 
+<script src="{{ url_for('static', filename='js/game_process.js') }}"></script>
 
-<button>Проверить</button>
 {% endblock %}
