@@ -1,6 +1,8 @@
+import flask_login
 from flask import Flask, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
+from expression import ArithmeticExpression, Equation
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
@@ -34,7 +36,9 @@ def loader_user(user_id):
 def register():
     if request.method == "POST":
         user = Users(username=request.form.get("username"),
-                     password=request.form.get("password"))
+                     password=request.form.get("password"),
+                     rating=0,
+                     solved=0)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for("login"))
@@ -61,6 +65,22 @@ def logout():
 @app.route("/")
 def home():
     return render_template("home.html")
+
+
+@flask_login.login_required
+@app.route('/game_process', methods=['GET', 'POST'])
+def game_process():
+    if request.method == 'GET':
+        return render_template('game_process.html')
+
+    tasks_exp = []
+    tasks_ans = []
+    for _ in range(3):
+        exp = ArithmeticExpression(5, _sub=True)
+        tasks_exp.append(exp.expression)
+        tasks_ans.append(exp.answer)
+
+    return [tasks_exp, tasks_ans]
 
 
 if __name__ == "__main__":
