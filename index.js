@@ -25,6 +25,10 @@ function update() {
 
 update();
 
+$('#check').prop('disabled', true)
+
+
+
 $('#check').on("click", function () {
     let inputs = document.querySelectorAll("input");
     let point = 0;
@@ -39,4 +43,3 @@ $('#check').on("click", function () {
         i++;
     }
 })
-

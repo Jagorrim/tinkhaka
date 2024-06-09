@@ -4,17 +4,20 @@ from expression import ArithmeticExpression
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/game_process', methods=['GET', 'POST'])
 def game_process():
+    if request.method == 'GET':
+        return render_template('game_process.html')
+
     tasks_exp = []
     tasks_ans = []
     for _ in range(3):
-        expression, answer = ArithmeticExpression(5).expression, ArithmeticExpression(5).answer
-        tasks_exp.append(expression)
-        tasks_ans.append(answer)
+        exp = ArithmeticExpression(5, _sub=True)
+        tasks_exp.append(exp.expression)
+        tasks_ans.append(exp.answer)
 
-    return render_template('game_process.html', tasks_exp=tasks_exp, tasks_ans=tasks_ans)
+    return [tasks_exp, tasks_ans]
 
 
 if __name__ == "__main__":
