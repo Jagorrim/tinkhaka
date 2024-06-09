@@ -60,6 +60,6 @@ def logout():
 def home():
     return render_template("home.html")
 
-w
+
 if __name__ == "__main__":
     app.run()
