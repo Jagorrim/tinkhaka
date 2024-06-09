@@ -5,12 +5,15 @@
         margin-bottom: 30px;
     }
 </style>
-<div id="main">
+{% for exp in tasks_exp %}
+<div>
+    <p>{{ exp }}</p>
+    <input placeholder="Ваш ответ">
 </div>
 <br>
+{% endfor %}
+  <script src="{{ url_for('static', filename='js/game_process.js') }}"></script>
 
-<button id="check">Проверить</button>
 
-<script src="{{ url_for('static', filename='js/game_process.js') }}"></script>
-
+<button>Проверить</button>
 {% endblock %}
