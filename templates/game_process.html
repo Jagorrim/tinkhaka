@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block content%}
 <div id="main">
+    <input type="radio" id="eq-yes" name="exptype" value="equation">
+    <label for="eq-yes">Уравнение</label>
+    <input type="radio" id="ar-yes" name="exptype" value="arithmetic">
+    <label for="ar-yes">Арифметический пример</label>
 </div>
-<button id="check">Проверить</button>
+
+<button id="next">Далее</button>
 <script src="{{ url_for('static', filename='js/game_process.js') }}"></script>
 {% endblock %}

@@ -1,7 +1,7 @@
 import flask_login
 from flask import Flask, render_template, request, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from expression import ArithmeticExpression, Equation
 
 app = Flask(__name__)
@@ -80,20 +80,52 @@ def home():
     return render_template("home.html")
 
 
-@flask_login.login_required
 @app.route('/game_process', methods=['GET', 'POST'])
+@flask_login.login_required
 def game_process():
     if request.method == 'GET':
         return render_template('game_process.html')
 
-    tasks_exp = []
-    tasks_ans = []
-    for _ in range(3):
-        exp = ArithmeticExpression(5, _sub=True)
-        tasks_exp.append(exp.expression)
-        tasks_ans.append(exp.answer)
+    # Если POST, то надо занести в БД данные о юзере и его рейтинге и кол-ве решённых задач
+    data = request.get_json(force=True)
 
-    return [tasks_exp, tasks_ans]
+    user = Users.query.filter_by(id=current_user.id).first()
+    user.rating += data['rating']
+    db.session.commit()
+    user.solved += data['solved']
+    db.session.commit()
+    return 'allright'
+
+
+@app.route('/game_create', methods=['GET'])
+@flask_login.login_required
+def game_create():
+    return render_template('game_create.html')
+
+
+@app.route('/get_exps', methods=['GET', 'POST'])
+@flask_login.login_required
+def get_exps():
+    try:
+        data = request.json.copy()
+        if data['type'] == 'arithmetic':
+            _exp = ArithmeticExpression
+            if None in [data['_brackets'], data['nums_count'], data['complexity']]:
+                raise ValueError('Не все поля заполнены!')
+        else:
+            _exp = Equation
+            if data['complexity'] is None:
+                raise ValueError('Не задана сложность!')
+        del data['type']
+        tasks_exp = []
+        tasks_ans = []
+        for _ in range(3):
+            exp = _exp(**data)
+            tasks_exp.append(exp.expression)
+            tasks_ans.append(exp.answer)
+        return [tasks_exp, tasks_ans]
+    except Exception as error:
+        return f'Ошибка: {error}'
 
 
 if __name__ == "__main__":
