@@ -57,22 +57,22 @@ function arithmetic_check() {
 }
 
 $('#next').on("click", function () {
-    let content = '<input id="compl" placeholder="Сложность"></button>';
+    let content = '<input id="compl" placeholder="Сложность" class="form-control" aria-label="Large"></button>';
     let exptype = $('input[name="exptype"]:checked').val();
     if (exptype == undefined) {
         return;
     }
     else if (exptype == 'arithmetic') {
-        content += '<input placeholder="Кол-во чисел в примере" id="count">';
-        content += '<input placeholder="Макс. вложенность скобок" id="brackets">';
+        content += '<input placeholder="Кол-во чисел в примере" id="count" class="form-control" aria-label="Large">';
+        content += '<input placeholder="Макс. вложенность скобок" id="brackets" class="form-control" aria-label="Large">';
         content += `
-        <input type="checkbox" id="sum" name="sum" value="sum">
+        <input class="form-check-input" type="checkbox" id="sum" name="sum" value="sum">
         <label for="sum">+</label>
-        <input type="checkbox" id="sub" name="sub" value="sub">
+        <input class="form-check-input" type="checkbox" id="sub" name="sub" value="sub">
         <label for="sub">-</label>
-        <input type="checkbox" id="mult" name="mult" value="mult">
+        <input class="form-check-input" type="checkbox" id="mult" name="mult" value="mult">
         <label for="mult">*</label>
-        <input type="checkbox" id="div" name="div" value="div">
+        <input class="form-check-input" type="checkbox" id="div" name="div" value="div">
         <label for="mult">/</label>
         `
         $('#next').off('click');
