@@ -1,0 +1,21 @@
+#for-gradient {
+    background: linear-gradient(to bottom, white, rgba(195, 0, 32, 0.3));
+}
+
+body {
+    height: auto;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+html {
+    /** << remove the body tag from here **/
+    height: auto;
+    min-height: 100%;
+}
+
+* {
+    text-decoration: none;
+}

@@ -3,20 +3,23 @@
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/create_game.css') }}">
 <title>Выбор режима</title>
-<p>Выбор режима</p>
-<div>
 
-    <a href="/game_process" class="games">Одиночный
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-    </a>
-    <a href="#" class="games">Мултиплеер
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-    </a>
+<div id="main">
+    <p>Выберите режим</p>
+    <div>
+
+        <a href="/game_process" class="games">Одиночная игра
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </a>
+        <a href="#" class="games">Играть с друзьями
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </a>
+    </div>
 </div>
 {% endblock %}
