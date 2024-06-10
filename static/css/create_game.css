@@ -11,7 +11,7 @@
     background: linear-gradient(to bottom right,blue, pink);
   }
 
-  a {
+  a.games {
     border-radius: 12px;
     border: 3px outset #888;
     position: relative;

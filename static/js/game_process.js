@@ -1,8 +1,11 @@
 var data = new Array();
 var request_data = {}
 
+var total_solved = 0;
+var total_rating = 0;
 
-function get_exps() {
+
+function get_exps(solved, rating) {
     $.ajax({
         url: "/get_exps",
         type: "POSt",
@@ -26,6 +29,7 @@ function get_exps() {
             data = result;
             $('#next').off('click');
             $('#next').on('click', check);
+            $('#about-game').html(`Всего решено: ${total_solved}, получено рейтинга за сессию: ${total_rating}`)
 
         },
         error: function (error) { alert(error) },
@@ -73,7 +77,7 @@ $('#next').on("click", function () {
         `
         $('#next').off('click');
         $('#next').on('click', arithmetic_check);
-        
+
     } else {
 
         $('#next').off('click');
@@ -110,12 +114,14 @@ function check() {
             if (request_data.type == 'equation') {
                 rating += request_data.complexity;
             } else {
-                rating += request_data.complexity * request_data.nums_count;
+                rating += request_data.complexity * request_data.nums_count * 0.2;
             }
             solved++;
         }
         i++;
     }
     send_updates(rating, solved);
+    total_rating += rating;
+    total_solved += solved;
     get_exps();
 }

@@ -94,6 +94,7 @@ def game_process():
     db.session.commit()
     user.solved += data['solved']
     db.session.commit()
+    print(Users.query.filter_by(id=current_user.id).first().rating)
     return 'allright'
 
 
